@@ -27,11 +27,21 @@ pool.query(`
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 
 function clientIp(req) {
-  let ip = process.env.DEBUG_IP || req.ip || '';
+  // Buscamos la IP en todos los headers posibles que usa Render/Proxies
+  let ip = process.env.DEBUG_IP 
+    || req.headers['x-forwarded-for']?.split(',')[0].trim() 
+    || req.headers['true-client-ip'] 
+    || req.ip 
+    || '';
+    
+  // Limpiamos el formato de IPv6 si es necesario
   if (ip.startsWith('::ffff:')) ip = ip.slice(7);
+  
+  // Si sigue saliendo local, que no diga "Desconocido", que diga "Local/Privada"
+  if (ip === '::1' || ip === '127.0.0.1') return 'Local';
+  
   return ip;
 }
-
 function limpiarFp(fp = {}) {
   const num = (v, max) => {
     const n = Number(v);
