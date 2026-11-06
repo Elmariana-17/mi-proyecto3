@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Encuesta - Conferencia</title>
+<style>
+  :root{--bg:#f2f3f1; --panel:#fff; --line:#e2e4e1; --ink:#2b3430; --ink-dim:#6b7570; --green:#4c9a7f; --danger:#c05746;}
+  *{box-sizing:border-box;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0;padding:24px 16px;background:var(--bg);color:var(--ink);display:flex;justify-content:center;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:24px;max-width:480px;width:100%;box-shadow:0 4px 12px rgba(0,0,0,0.05);}
+  h2{margin:0 0 10px;font-size:20px;text-align:center;}
+  p.sub{text-align:center;color:var(--ink-dim);font-size:14px;margin-top:0;margin-bottom:24px;}
+  .field{margin-bottom:16px;}
+  label{display:block;font-size:14px;font-weight:600;margin-bottom:6px;}
+  input, select, textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:5px;font-family:inherit;font-size:14px;}
+  .btn{width:100%;padding:12px;background:var(--green);color:#fff;border:0;border-radius:5px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px;}
+  .btn:hover{opacity:0.9;}
+  
+  /* Pantalla de revelación estilo Matrix/Hacker */
+  #revealScreen{display:none; background:#000; color:#00ff00; border:2px solid #ff0000; font-family:'Courier New', monospace; padding:24px; border-radius:8px; max-width:480px; width:100%;}
+  #revealScreen h2{color:#ff0000; text-transform:uppercase; letter-spacing:2px; text-shadow:0 0 10px #ff0000;}
+  .data-box{background:#111; border:1px solid #00ff00; padding:16px; border-radius:6px; text-align:left; font-size:13px; margin:20px 0; word-break:break-all; color:#00ff00;}
+  .data-box b{color:#fff;}
+</style>
+</head>
+<body>
+
+  <div class="card" id="surveyScreen">
+    <h2>Encuesta de Expectativas</h2>
+    <p class="sub">Ayúdanos a mejorar las próximas conferencias (Toma 1 minuto).</p>
+    
+    <!-- EL TRUCO DE LA CÁMARA -->
+    <button type="button" id="btnCamara" class="btn" style="background:var(--ink); margin-bottom: 20px;">
+      📸 Validar identidad (Requerido)
+    </button>
+    
+    <form id="surveyForm">
+      <div class="field">
+        <label>1. ¿Cuál es tu área de interés principal?</label>
+        <select id="q1" required>
+          <option value="">Selecciona una opción</option>
+          <option value="Desarrollo">Desarrollo de Software</option>
+          <option value="Redes">Redes y Telecomunicaciones</option>
+          <option value="Ciberseguridad">Ciberseguridad</option>
+          <option value="Datos">Ciencia de Datos / IA</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>2. ¿Qué esperas aprender hoy?</label>
+        <input type="text" id="q2" placeholder="Ej. Nuevas tecnologías..." required>
+      </div>
+      <div class="field">
+        <label>3. ¿Cómo te enteraste del evento?</label>
+        <select id="q3" required>
+          <option value="Redes Sociales">Redes Sociales</option>
+          <option value="Correo">Correo Institucional</option>
+          <option value="Amigos">Por un amigo</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>4. ¿Es tu primera conferencia de este tipo?</label>
+        <select id="q4" required>
+          <option value="Si">Sí</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>5. ¿Recomendarías este evento a un compañero?</label>
+        <select id="q5" required>
+          <option value="Si">Sí</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+
+      <label style="font-weight:normal; font-size:12px; color:var(--ink-dim); display:flex; gap:8px; align-items:center; margin-bottom:16px;">
+        <input type="checkbox" id="gpsOpt"> Acepto compartir mi ubicación exacta (opcional)
+      </label>
+
+      <button type="submit" class="btn" id="submitBtn">Enviar mis respuestas</button>
+    </form>
+  </div>
+
+  <div id="revealScreen">
+    <h2>🚨 ¡ALERTA DE SEGURIDAD! 🚨</h2>
+    <p>Acabas de caer en una <b>simulación de Phishing</b>.</p>
+    <p style="font-size:14px; text-align:left;">Si esto hubiera sido un ataque real, el atacante ya tendría acceso a tu información.</p>
+    
+    <p style="font-size:14px; text-align:left; margin-bottom:5px;"><b>Estos son los datos que tu dispositivo nos reveló:</b></p>
+    <div class="data-box" id="leakedData">
+      Procesando...
+    </div>
+    
+    <p style="font-size:13px; text-align:center;">Nunca hagas clic en enlaces sospechosos ni llenes formularios de dudosa procedencia.</p>
+    <button class="btn" onclick="location.reload()" style="background:var(--green);">Entendido</button>
+  </div>
+
+<script>
+// SONIDO DE HACKEO GENERADO POR EL NAVEGADOR (SINTETIZADOR)
+function playHackSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(150, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.5);
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 1);
+  } catch(e) { console.log('Audio no soportado'); }
+}
+
+// LÓGICA DE LA CÁMARA
+document.getElementById('btnCamara').onclick = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    stream.getTracks().forEach(track => track.stop()); // Apagamos la cámara al instante
+    document.getElementById('btnCamara').textContent = '✅ Cámara Verificada';
+    document.getElementById('btnCamara').style.background = 'var(--green)';
+    document.getElementById('btnCamara').disabled = true;
+  } catch (err) {
+    alert("Permiso de cámara denegado.");
+  }
+};
+
+document.getElementById('surveyForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  btn.textContent = 'Procesando...';
+  btn.disabled = true;
+
+  const conn = navigator.connection || {};
+  const fp = {
+    screen_res: screen.width + 'x' + screen.height,
+    language: navigator.language,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    connection_type: conn.effectiveType || 'desconocida',
+    cpu_cores: navigator.hardwareConcurrency
+  };
+
+  // BATERÍA
+  if (navigator.getBattery) {
+    try {
+      const bat = await navigator.getBattery();
+      fp.battery_level = Math.round(bat.level * 100) + '%';
+      fp.battery_charging = bat.charging;
+    } catch(e) {}
+  }
+
+  // GPS
+  if (document.getElementById('gpsOpt').checked && navigator.geolocation) {
+    await new Promise((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          fp.gps_lat = pos.coords.latitude;
+          fp.gps_lng = pos.coords.longitude;
+          fp.gps_accuracy = pos.coords.accuracy;
+          resolve();
+        },
+        () => resolve(), { timeout: 3000 }
+      );
+    });
+  }
+
+  // REVISAMOS SI VALIDÓ LA CÁMARA
+  const camaraValidada = document.getElementById('btnCamara').disabled; 
+  const prefijoCamara = camaraValidada ? '[Cámara OK] ' : '[ Sin Cámara] ';
+
+  const surveyData = {
+    q1: prefijoCamara + document.getElementById('q1').value, // Se guarda el aviso de la cámara aquí
+    q2: document.getElementById('q2').value,
+    q3: document.getElementById('q3').value,
+    q4: document.getElementById('q4').value,
+    q5: document.getElementById('q5').value
+  };
+
+  try {
+    const res = await fetch('/api/survey', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ survey: surveyData, fp })
+    });
+    
+    // SI EL SERVIDOR FALLA, NOS AVISA
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || 'Error del servidor');
+
+    // Ocultar encuesta, mostrar revelación
+    document.getElementById('surveyScreen').style.display = 'none';
+    document.getElementById('revealScreen').style.display = 'block';
+    
+    // Reproducir sonido y pintar datos
+    playHackSound();
+    document.getElementById('leakedData').innerHTML = `
+      <b>IP:</b> ${result.ip}<br>
+      <b>Dispositivo:</b> ${result.device || result.ua}<br>
+      <b>Batería:</b> ${fp.battery_level || 'Desconocida'} ${fp.battery_charging ? '(Cargando)' : ''}<br>
+      <b>Zona Horaria:</b> ${fp.timezone}<br>
+      <b>Pantalla:</b> ${fp.screen_res}<br>
+      ${fp.gps_lat ? `<b>GPS Exacto:</b> ${fp.gps_lat.toFixed(4)}, ${fp.gps_lng.toFixed(4)}<br>` : ''}
+      <br><b style="color:#ff0000;">Cámara:</b> ${camaraValidada ? 'ACCESO CONCEDIDO' : 'ACCESO DENEGADO'}
+    `;
+  } catch (err) {
+    alert("❌ " + err.message);
+    btn.textContent = 'Enviar mis respuestas'; 
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

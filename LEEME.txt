@@ -1,0 +1,35 @@
+PASOS (una sola vez)
+1. brew install postgresql@16 && brew services start postgresql@16
+   echo 'export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"' >> ~/.zshrc   (reinicia la terminal)
+2. createdb miapp
+3. psql miapp -f schema.sql
+4. npm install
+5. npm run crear-usuario -- tucorreo@ejemplo.com TuClave123 admin
+
+CADA VEZ QUE LO USES
+Terminal 1:  npm start
+Terminal 2:  ngrok http 3000   (primera vez: brew install ngrok, crear cuenta en ngrok.com,
+             ngrok config add-authtoken TU_TOKEN)
+Terminal 3:  node generar-qr.js https://LA-URL-QUE-TE-DIO-NGROK
+             -> abre qr.png y escanealo
+
+PANEL ADMIN:  https://LA-URL-DE-NGROK/admin.html
+
+SOBRE LA IMAGEN DE CARGA
+public/cargando.png es un placeholder (un circulo simple). Reemplazalo por tu propia
+imagen PNG, con el MISMO NOMBRE (cargando.png), y se vera automaticamente en el login
+mientras se "cargan los datos". El mensaje de abajo se edita en public/login.html,
+buscando la linea: <p>Cargando tus datos…</p>
+
+Ese overlay es solo visual: no hace nada por si mismo, se muestra mientras la
+peticion real a /api/login esta en curso (minimo 900ms) y desaparece justo antes
+de redirigir al dashboard o admin.
+
+QUE GUARDA LA BASE DE DATOS
+- IP, ciudad/pais aproximados, navegador, sistema, tipo de dispositivo
+- Resolucion de pantalla, idioma, zona horaria, tipo de conexion, nucleos de CPU
+- GPS exacto SOLO si el usuario marca la casilla y acepta el permiso del navegador
+- La contraseña JAMAS se guarda, sea correcta o incorrecta
+
+Ver datos en terminal:
+psql miapp -c "SELECT email_tried, success, screen_res, language, timezone, gps_lat FROM login_events ORDER BY id DESC LIMIT 10;"

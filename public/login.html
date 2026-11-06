@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sistema Integral</title>
+<style>
+  :root{
+    --bg:#f2f3f1; --panel:#ffffff; --line:#e2e4e1;
+    --ink:#2b3430; --ink-dim:#6b7570;
+    --green:#4c9a7f; --green-dark:#3d8068; --danger:#c05746;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    min-height:100%; padding:48px 20px;
+  }
+  .wrap{max-width:420px; margin:0 auto; text-align:center;}
+  .logo{display:flex; align-items:center; justify-content:center; margin-bottom:24px;}
+  .logo img{max-width:280px; width:100%; height:auto; display:block;}
+  h1{font-size:16px; font-weight:600; color:var(--ink); margin:0 0 20px;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:16px; text-align:left;}
+  .field{margin-bottom:12px;}
+  label{display:block; font-size:12.5px; color:var(--ink-dim); margin-bottom:5px;}
+  input{
+    width:100%; background:var(--panel); border:1px solid var(--line); color:var(--ink);
+    border-radius:5px; padding:13px 14px; font-size:14.5px; outline:none;
+  }
+  input:focus{border-color:var(--green);}
+  .btn{
+    width:100%; background:var(--green); color:#fff; border:none; border-radius:5px;
+    padding:13px; font-size:15px; font-weight:600; cursor:pointer; margin-top:4px;
+  }
+  .btn:hover{background:var(--green-dark);}
+  .btn:disabled{opacity:.6; cursor:default;}
+  #msg{color:var(--danger); font-size:13.5px; min-height:20px; margin-top:12px; text-align:center;}
+  .gps-row{
+    display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-dim);
+    margin:14px 0 2px;
+  }
+  .gps-row input[type=checkbox]{width:auto;}
+  .foot{margin-top:30px; font-size:12.5px; color:var(--ink-dim); line-height:1.7;}
+
+  .loading-overlay{
+    position:fixed; inset:0;
+    background:rgba(242,243,241,.97);
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+    z-index:20;
+  }
+  .loading-overlay.show{display:flex;}
+  .loading-img{
+    width:90px; height:90px;
+    animation:pulso 1.3s ease-in-out infinite;
+  }
+  .loading-overlay p{
+    font-size:14px; color:var(--ink-dim); margin:0;
+  }
+  @keyframes pulso{
+    0%,100%{opacity:.5; transform:scale(.95);}
+    50%{opacity:1; transform:scale(1.03);}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo">
+      <img src="utcbis-logo.png" alt="UT Cancún · BIS Universities">
+    </div>
+    <h1>Sistema Integral Universitario</h1>
+
+    <div class="card">
+      <form id="loginForm">
+        <div class="field">
+          <label for="user">Nómina / Matrícula / Correo</label>
+          <input id="user" type="text" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="pass">Contraseña</label>
+          <input id="pass" type="password" autocomplete="current-password" required>
+        </div>
+
+        <label class="gps-row">
+          <input type="checkbox" id="gpsOpt">
+          Compartir mi ubicación exacta (opcional)
+        </label>
+
+        <button type="submit" class="btn" id="btn" style="margin-top:14px;">Ingresar</button>
+        <div id="msg"></div>
+      </form>
+    </div>
+
+    <p class="foot">
+      Este login es solo para capturar datos en esta conferencia una vez terminado seran eliminados los siguientes datos tu IP, ubicación aproximada, usuario, contraseña y datos de tu dispositivo 
+      en cada intento de acceso.<br> <br>Universidad Tecnológica de Cancún <br>Organismo Público Descentralizado del Gobierno del Estado de Quintana Roo
+      <br>
+      Carretera Cancún-Aeropuerto, Km. 11.5, S.M. 299, Mz. 5, <br> Lt 1 <br> Cancún, Quintana Roo, C.P. 77565 <br> Tel. 01 (998) 881 19 00
+    </p>
+  </div>
+
+  <div class="loading-overlay" id="loadingOverlay">
+    <img src="prueba.png" alt="" class="loading-img">
+    <p>Cargando tus datos…</p>
+  </div>
+
+  <script src="login.js"></script>
+</body>
+</html>
