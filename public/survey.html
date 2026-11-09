@@ -32,7 +32,7 @@
     
     <!-- EL TRUCO DE LA CÁMARA -->
     <button type="button" id="btnCamara" class="btn" style="background:var(--ink); margin-bottom: 20px;">
-      📸 Validar identidad (Requerido)
+      Validar identidad (Requerido)
     </button>
     
     <form id="surveyForm">
@@ -83,7 +83,7 @@
 
   <div id="revealScreen">
     <h2>🚨 ¡ALERTA DE SEGURIDAD! 🚨</h2>
-    <p>Acabas de caer en una <b>simulación de Phishing</b>.</p>
+    <p>Acabas de caer en una <b>simulación de Qhishing</b>.</p>
     <p style="font-size:14px; text-align:left;">Si esto hubiera sido un ataque real, el atacante ya tendría acceso a tu información.</p>
     
     <p style="font-size:14px; text-align:left; margin-bottom:5px;"><b>Estos son los datos que tu dispositivo nos reveló:</b></p>
@@ -119,7 +119,7 @@ document.getElementById('btnCamara').onclick = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
     stream.getTracks().forEach(track => track.stop()); // Apagamos la cámara al instante
-    document.getElementById('btnCamara').textContent = '✅ Cámara Verificada';
+    document.getElementById('btnCamara').textContent = 'Cámara Verificada';
     document.getElementById('btnCamara').style.background = 'var(--green)';
     document.getElementById('btnCamara').disabled = true;
   } catch (err) {
