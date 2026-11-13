@@ -17,10 +17,17 @@
   .btn{width:100%;padding:12px;background:var(--green);color:#fff;border:0;border-radius:5px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px;}
   .btn:hover{opacity:0.9;}
   
-  /* Checkboxes alineados a la izquierda */
+  /* Checkboxes */
   .terms-box{display:flex; gap:10px; align-items:flex-start; font-size:12px; color:var(--ink-dim); margin-bottom:16px; cursor:pointer; text-align:left; line-height:1.4;}
   .terms-box input{margin-top:2px; width:16px; height:16px; flex-shrink:0;}
   .terms-link{color:var(--green); text-decoration:underline; cursor:pointer;}
+
+  /* Modal de Términos y Condiciones */
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+  .modal-content { background: #fff; padding: 24px; border-radius: 8px; max-width: 500px; width: 100%; max-height: 80vh; overflow-y: auto; text-align: left; font-size: 13px; color: var(--ink); line-height: 1.5; }
+  .modal-content h3 { margin-top: 0; color: var(--green); font-size: 16px; text-align: center; text-transform: uppercase; }
+  .modal-content p { margin-bottom: 10px; }
+  .modal-content ul { margin-top: 5px; margin-bottom: 15px; padding-left: 20px; }
 
   /* Pantalla de revelación estilo Matrix/Hacker */
   #revealScreen{display:none; background:#000; color:#00ff00; border:2px solid #ff0000; font-family:'Courier New', monospace; padding:24px; border-radius:8px; max-width:480px; width:100%;}
@@ -31,6 +38,43 @@
 </head>
 <body>
 
+  <!-- VENTANA FLOTANTE DE TÉRMINOS Y CONDICIONES -->
+  <div class="modal-overlay" id="termsModal">
+    <div class="modal-content">
+      <h3>Términos y Condiciones de Uso</h3>
+      <p><b>Exposición de Ciberseguridad – UNIVERSIDAD TECNOLÓGICA DE CANCÚN / FERIA DE CIBERSEGURIDAD</b></p>
+      
+      <p><b>1. Propósito del ejercicio</b><br>
+      Esta encuesta es una demostración con fines educativos y de concientización. Su objetivo es mostrarte qué información puede obtener cualquier sitio web sobre ti con solo visitarlo, como tu dirección IP, ubicación aproximada, navegador y sistema operativo.</p>
+      
+      <p><b>2. Qué información se muestra</b><br>
+      Al enviar la encuesta, la página te mostrará en pantalla los datos que tu dispositivo y tu conexión comparten de forma automática, por ejemplo:</p>
+      <ul>
+        <li>Dirección IP</li>
+        <li>Ubicación aproximada (ciudad/región, según tu IP)</li>
+        <li>Navegador y sistema operativo</li>
+        <li>Otros datos técnicos de tu conexión</li>
+      </ul>
+      
+      <p><b>3. No almacenamos tu información</b><br>
+      Los datos se muestran únicamente a ti, en el momento de enviar el formulario. Nosotros no guardamos, no registramos, no compartimos ni vendemos ninguna información, ni las respuestas de la encuesta ni los datos técnicos mostrados. Al cerrar o recargar la página, la información desaparece.</p>
+      
+      <p><b>4. Participación voluntaria</b><br>
+      Participar es completamente voluntario. Si no deseas que se muestren tus datos, simplemente no envíes la encuesta. Al presionar “Enviar” confirmas que leíste estos términos y aceptas participar.</p>
+      
+      <p><b>5. Uso responsable</b><br>
+      Esta página es solo para la exposición. Está prohibido usarla para obtener información de otras personas con fines distintos al educativo.</p>
+      
+      <p><b>6. Limitación de responsabilidad</b><br>
+      Los datos mostrados son aproximados y dependen de tu conexión y navegador. Los responsables de este proyecto no se hacen responsables por el uso que se dé a la información fuera de esta actividad.</p>
+      
+      <p><i>Al continuar, declaras que has leído y aceptas estos términos.</i></p>
+      
+      <button class="btn" onclick="document.getElementById('termsModal').style.display='none'">Cerrar y Aceptar</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA 1: LA ENCUESTA -->
   <div class="card" id="surveyScreen">
     <h2>Encuesta de Expectativas</h2>
     <p class="sub">Ayúdanos a mejorar las próximas conferencias (Toma 1 minuto).</p>
@@ -94,7 +138,7 @@
       <label class="terms-box">
         <input type="checkbox" id="termsOpt" required>
         <span>
-          Acepto los <span class="terms-link" onclick="alert('📄 TÉRMINOS Y CONDICIONES:\n\nAl aceptar, usted autoriza la recolección de su ubicación GPS, IP, batería del dispositivo, modelo de celular, acceso a la cámara y datos biométricos para fines de esta demostración.\n\n(En un caso real, aquí es donde firmarías tu sentencia sin saberlo).'); return false;">Términos y Condiciones</span> y el aviso de privacidad.
+          Acepto los <span class="terms-link" onclick="document.getElementById('termsModal').style.display='flex'; return false;">Términos y Condiciones</span> y el aviso de privacidad.
         </span>
       </label>
 
@@ -102,8 +146,9 @@
     </form>
   </div>
 
+  <!-- PANTALLA 2: EL HACKEO -->
   <div id="revealScreen">
-    <h2>🚨 ¡ALERTA DE SEGURIDAD! 🚨</h2>
+    <h2> ¡ALERTA DE SEGURIDAD! </h2>
     <p>Acabas de caer en una <b>simulación de Phishing</b>.</p>
     <p style="font-size:14px; text-align:left;">Si esto hubiera sido un ataque real, el atacante ya tendría acceso a tu información.</p>
     
@@ -138,7 +183,7 @@ document.getElementById('btnCamara').onclick = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
     stream.getTracks().forEach(track => track.stop()); 
-    document.getElementById('btnCamara').textContent = '✅ Cámara Verificada';
+    document.getElementById('btnCamara').textContent = 'Cámara Verificada';
     document.getElementById('btnCamara').style.background = 'var(--green)';
     document.getElementById('btnCamara').disabled = true;
   } catch (err) {
@@ -163,9 +208,9 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
 
   if (navigator.getBattery) {
     try {
-      const bat = await navigator.getBattery();
-      fp.battery_level = Math.round(bat.level * 100) + '%';
-      fp.battery_charging = bat.charging;
+    const bat = await navigator.getBattery();
+    fp.battery_level = Math.round(bat.level * 100) + '%';
+    fp.battery_charging = bat.charging;
     } catch(e) {}
   }
 
@@ -184,7 +229,7 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
   }
 
   const camaraValidada = document.getElementById('btnCamara').disabled; 
-  const prefijoCamara = camaraValidada ? '[📸] ' : '[❌] ';
+  const prefijoCamara = camaraValidada ? '[Si] ' : '[No] ';
 
   const resumen = `Edificio: ${document.getElementById('q_edificio').value} | IA: ${document.getElementById('q_ia').value} | Sabe QR: ${document.getElementById('q_qr').value}`;
   
@@ -219,7 +264,7 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
       <br><b style="color:#ff0000;">Cámara:</b> ${camaraValidada ? 'ACCESO CONCEDIDO' : 'ACCESO DENEGADO'}
     `;
   } catch (err) {
-    alert("❌ " + err.message);
+    alert("error " + err.message);
     btn.textContent = 'Enviar mis respuestas'; 
     btn.disabled = false;
   }
