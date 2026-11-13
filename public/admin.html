@@ -23,8 +23,7 @@
   th,td{padding:8px 11px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap;}
   tr:hover{background:#333;cursor:pointer;}
   .ok{color:var(--green);font-weight:600;} .fail{color:var(--danger);font-weight:600;}
-  .aviso{background:#330000;border:1px solid var(--danger);color:#ff9999;
-         padding:10px 14px;border-radius:6px;font-size:12.5px;margin-bottom:16px;}
+  .aviso{background:#330000;border:1px solid var(--danger);color:#ff9999; padding:10px 14px;border-radius:6px;font-size:12.5px;margin-bottom:16px;}
 </style>
 </head>
 <body>
@@ -33,9 +32,7 @@
     <button id="logout">Desconectar</button>
   </div>
 
-  <div class="aviso">
-    ⚠️ Entorno de <b>simulación</b>. Los datos se muestran con fines educativos.
-  </div>
+  <div class="aviso">⚠️ Entorno de <b>simulación</b>. Los datos se muestran con fines educativos.</div>
 
   <div class="stats" id="stats"></div>
 
@@ -108,10 +105,8 @@
         const tieneGps = e.gps_lat != null;
         const gpsTxt = tieneGps ? `${e.gps_lat.toFixed(5)}, ${e.gps_lng.toFixed(5)}` : '—';
         const batTxt = e.battery_level ? `${e.battery_level} ${e.battery_charging ? '⚡' : ''}` : '—';
-        
         const ipTxt = e.ip && e.ip !== '::1' ? e.ip : (e.ip === '::1' ? 'Local' : '—');
 
-        // Si hay GPS usamos eso, si no, usamos la latitud/longitud de la IP
         const lat = tieneGps ? e.gps_lat : e.latitude;
         const lng = tieneGps ? e.gps_lng : e.longitude;
         
@@ -152,17 +147,13 @@
         tbody.appendChild(tr);
       }
 
-      // AUTO-ZOOM AL ÚLTIMO REGISTRO
       if (eventos.length > 0) {
         const ultimo = eventos[0];
         if (ultimo.id > ultimoIdCargado) {
           ultimoIdCargado = ultimo.id;
           const latLive = ultimo.gps_lat || ultimo.latitude;
           const lngLive = ultimo.gps_lng || ultimo.longitude;
-          if (latLive && lngLive) {
-            // Vuela hacia el último escaneo
-            map.flyTo([latLive, lngLive], 14, { duration: 2 });
-          }
+          if (latLive && lngLive) map.flyTo([latLive, lngLive], 14, { duration: 2 });
         }
       }
     }

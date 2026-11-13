@@ -27,15 +27,10 @@ pool.query(`
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 
 function clientIp(req) {
-  // Render usa 'x-forwarded-for' para la IP real, si no existe, usamos req.ip
   let ip = process.env.DEBUG_IP || req.headers['x-forwarded-for'] || req.ip || '';
-  
-  // Si hay varias IPs (por proxies), tomamos la primera
   if (ip.includes(',')) ip = ip.split(',')[0].trim();
-  
   if (ip.startsWith('::ffff:')) ip = ip.slice(7);
   if (ip === '::1' || ip === '127.0.0.1') return 'Local';
-  
   return ip;
 }
 
@@ -138,7 +133,7 @@ app.post('/api/survey', async (req, res) => {
     const ip = clientIp(req);
     const geo = await buscarUbicacion(ip);
     const ua = new UAParser(req.get('user-agent')).getResult();
-    const resumen = survey.q1; // El resumen ya viene armado desde el HTML
+    const resumen = survey.q1; 
     const deviceModel = ua.device.model ? `${ua.device.vendor || ''} ${ua.device.model}`.trim() : (ua.device.type || 'desktop');
     
     try {
@@ -166,11 +161,32 @@ app.get('/api/admin/logins', requireAuth, requireAdmin, async (req, res) => {
   res.json(rows);
 });
 
+// RUTAS PARA BORRAR (una y todas)
+app.delete('/api/admin/logins/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM login_events WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al borrar' });
+  }
+});
+
+app.delete('/api/admin/logins', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM login_events');
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al borrar todo' });
+  }
+});
+
 app.get('/api/admin/stats', requireAuth, requireAdmin, async (req, res) => {
   const { rows } = await pool.query(`SELECT count(*) AS total, count(*) FILTER (WHERE success) AS exitosos, count(*) FILTER (WHERE NOT success) AS fallidos, count(DISTINCT ip_address) AS ips_unicas, count(*) FILTER (WHERE gps_lat IS NOT NULL) AS con_gps FROM login_events WHERE created_at > now() - interval '24 hours'`);
   res.json(rows[0]);
 });
 
-app.get('/', (req, res) => res.redirect('/survey.html')); // Redirige a la encuesta por defecto
+app.get('/', (req, res) => res.redirect('/survey.html'));
 app.use(express.static('public'));
 app.listen(process.env.PORT || 3000, () => console.log(`Servidor listo`));
