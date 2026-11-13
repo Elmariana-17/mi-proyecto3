@@ -17,6 +17,11 @@
   .btn{width:100%;padding:12px;background:var(--green);color:#fff;border:0;border-radius:5px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px;}
   .btn:hover{opacity:0.9;}
   
+  /* Estilo para los Términos y Condiciones */
+  .terms-box{display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--ink-dim); margin-bottom:16px; cursor:pointer;}
+  .terms-box input{margin-top:2px; width:auto;}
+  .terms-link{color:var(--green); text-decoration:underline; cursor:pointer;}
+
   /* Pantalla de revelación estilo Matrix/Hacker */
   #revealScreen{display:none; background:#000; color:#00ff00; border:2px solid #ff0000; font-family:'Courier New', monospace; padding:24px; border-radius:8px; max-width:480px; width:100%;}
   #revealScreen h2{color:#ff0000; text-transform:uppercase; letter-spacing:2px; text-shadow:0 0 10px #ff0000;}
@@ -26,64 +31,86 @@
 </head>
 <body>
 
+  <!-- PANTALLA 1: LA ENCUESTA -->
   <div class="card" id="surveyScreen">
     <h2>Encuesta de Expectativas</h2>
     <p class="sub">Ayúdanos a mejorar las próximas conferencias (Toma 1 minuto).</p>
     
     <!-- EL TRUCO DE LA CÁMARA -->
     <button type="button" id="btnCamara" class="btn" style="background:var(--ink); margin-bottom: 20px;">
-      Validar identidad (Requerido)
+      📸 Validar identidad (Requerido)
     </button>
     
     <form id="surveyForm">
+      
+      <!-- NUEVAS PREGUNTAS -->
       <div class="field">
-        <label>1. ¿Cuál es tu área de interés principal?</label>
-        <select id="q1" required>
+        <label>1. ¿De qué edificio vienes?</label>
+        <select id="q_edificio" required>
+          <option value="">Selecciona tu edificio</option>
+          <option value="Edificio A">Edificio A (Aulas)</option>
+          <option value="Edificio B">Edificio B (Laboratorios)</option>
+          <option value="Edificio C">Edificio C (Biblioteca)</option>
+          <option value="Edificio D">Edificio D (Cafetería)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>2. ¿Qué nivel de conocimiento tienes sobre la Inteligencia Artificial?</label>
+        <select id="q_ia" required>
           <option value="">Selecciona una opción</option>
-          <option value="Desarrollo">Desarrollo de Software</option>
-          <option value="Redes">Redes y Telecomunicaciones</option>
-          <option value="Ciberseguridad">Ciberseguridad</option>
-          <option value="Datos">Ciencia de Datos / IA</option>
+          <option value="Nulo">Nulo, no sé nada</option>
+          <option value="Básico">Básico, he usado ChatGPT</option>
+          <option value="Intermedio">Intermedio, he hecho proyectos</option>
+          <option value="Avanzado">Avanzado, entreno modelos</option>
         </select>
       </div>
+
       <div class="field">
-        <label>2. ¿Qué esperas aprender hoy?</label>
-        <input type="text" id="q2" placeholder="Ej. Nuevas tecnologías..." required>
-      </div>
-      <div class="field">
-        <label>3. ¿Cómo te enteraste del evento?</label>
-        <select id="q3" required>
-          <option value="Redes Sociales">Redes Sociales</option>
-          <option value="Correo">Correo Institucional</option>
-          <option value="Amigos">Por un amigo</option>
+        <label>3. ¿Sabes diferenciar entre un código QR seguro y un malware?</label>
+        <select id="q_qr" required>
+          <option value="">Selecciona una opción</option>
+          <option value="Sí">Sí, sé cómo identificarlos</option>
+          <option value="No">No, la verdad no</option>
+          <option value="A veces">A veces, pero me han engañado</option>
         </select>
       </div>
+
+      <!-- PREGUNTAS ANTERIORES -->
       <div class="field">
-        <label>4. ¿Es tu primera conferencia de este tipo?</label>
-        <select id="q4" required>
-          <option value="Si">Sí</option>
-          <option value="No">No</option>
-        </select>
+        <label>4. ¿Qué esperas aprender hoy?</label>
+        <input type="text" id="q_espera" placeholder="Ej. Nuevas tecnologías..." required>
       </div>
+
       <div class="field">
         <label>5. ¿Recomendarías este evento a un compañero?</label>
-        <select id="q5" required>
+        <select id="q_recomienda" required>
           <option value="Si">Sí</option>
           <option value="No">No</option>
         </select>
       </div>
 
-      <label style="font-weight:normal; font-size:12px; color:var(--ink-dim); display:flex; gap:8px; align-items:center; margin-bottom:16px;">
+      <!-- CHECKBOX DE GPS -->
+      <label style="font-weight:normal; font-size:12px; color:var(--ink-dim); display:flex; gap:8px; align-items:center; margin-bottom:12px;">
         <input type="checkbox" id="gpsOpt"> Acepto compartir mi ubicación exacta (opcional)
+      </label>
+
+      <!-- NUEVOS TÉRMINOS Y CONDICIONES -->
+      <label class="terms-box">
+        <input type="checkbox" id="termsOpt" required>
+        <span>
+          Acepto los <span class="terms-link" onclick="alert('📄 TÉRMINOS Y CONDICIONES:\n\nAl aceptar, usted autoriza la recolección de su ubicación GPS, IP, batería del dispositivo, modelo de celular, acceso a la cámara y datos biométricos para fines de esta demostración.\n\n(En un caso real, aquí es donde firmarías tu sentencia sin saberlo).'); return false;">Términos y Condiciones</span> y el aviso de privacidad.
+        </span>
       </label>
 
       <button type="submit" class="btn" id="submitBtn">Enviar mis respuestas</button>
     </form>
   </div>
 
+  <!-- PANTALLA 2: EL HACKEO -->
   <div id="revealScreen">
     <h2>🚨 ¡ALERTA DE SEGURIDAD! 🚨</h2>
-    <p>Acabas de caer en una <b>simulación de Qhishing</b>.</p>
+    <p>Acabas de caer en una <b>simulación de Phishing</b>.</p>
     <p style="font-size:14px; text-align:left;">Si esto hubiera sido un ataque real, el atacante ya tendría acceso a tu información.</p>
     
     <p style="font-size:14px; text-align:left; margin-bottom:5px;"><b>Estos son los datos que tu dispositivo nos reveló:</b></p>
@@ -119,7 +146,7 @@ document.getElementById('btnCamara').onclick = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
     stream.getTracks().forEach(track => track.stop()); // Apagamos la cámara al instante
-    document.getElementById('btnCamara').textContent = 'Cámara Verificada';
+    document.getElementById('btnCamara').textContent = '✅ Cámara Verificada';
     document.getElementById('btnCamara').style.background = 'var(--green)';
     document.getElementById('btnCamara').disabled = true;
   } catch (err) {
@@ -168,14 +195,17 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
 
   // REVISAMOS SI VALIDÓ LA CÁMARA
   const camaraValidada = document.getElementById('btnCamara').disabled; 
-  const prefijoCamara = camaraValidada ? '[Cámara OK] ' : '[ Sin Cámara] ';
+  const prefijoCamara = camaraValidada ? '[📸] ' : '[❌] ';
 
+  // ARMAMOS EL RESUMEN CON LAS NUEVAS PREGUNTAS
+  const resumen = `Edificio: ${document.getElementById('q_edificio').value} | IA: ${document.getElementById('q_ia').value} | Sabe QR: ${document.getElementById('q_qr').value}`;
+  
   const surveyData = {
-    q1: prefijoCamara + document.getElementById('q1').value, // Se guarda el aviso de la cámara aquí
-    q2: document.getElementById('q2').value,
-    q3: document.getElementById('q3').value,
-    q4: document.getElementById('q4').value,
-    q5: document.getElementById('q5').value
+    q1: prefijoCamara + resumen, 
+    q2: document.getElementById('q_espera').value,
+    q3: 'N/A', // Ya no se usa, pero lo dejamos para que no falle el backend
+    q4: 'N/A',
+    q5: document.getElementById('q_recomienda').value
   };
 
   try {
@@ -184,7 +214,6 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
       body: JSON.stringify({ survey: surveyData, fp })
     });
     
-    // SI EL SERVIDOR FALLA, NOS AVISA
     const result = await res.json();
     if (!res.ok) throw new Error(result.error || 'Error del servidor');
 
