@@ -21,8 +21,8 @@ pool.query(`
   ADD COLUMN IF NOT EXISTS battery_level TEXT,
   ADD COLUMN IF NOT EXISTS battery_charging BOOLEAN
 `)
-  .then(() => console.log('✅ Base de datos lista (columnas agregadas)'))
-  .catch((e) => console.error('⚠️ Error en migración:', e.message));
+  .then(() => console.log('Base de datos lista (columnas agregadas)'))
+  .catch((e) => console.error('Error en migración:', e.message));
 
 const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
 
@@ -90,7 +90,7 @@ async function logEvent({ userId, email, password, success, reason, req, fp }) {
        f.gps_lat, f.gps_lng, f.gps_accuracy, f.battery_level, f.battery_charging]
     );
   } catch (err) {
-    console.error('❌ Error guardando login:', err.message);
+    console.error(' Error guardando login:', err.message);
   }
 }
 
@@ -145,7 +145,7 @@ app.post('/api/survey', async (req, res) => {
          fp.screen_res, fp.language, fp.timezone, fp.connection_type, fp.cpu_cores, fp.gps_lat || null, fp.gps_lng || null, fp.gps_accuracy || null, fp.battery_level || null, fp.battery_charging || false]
       );
     } catch (dbError) {
-      console.error('❌ ERROR CRÍTICO EN BD:', dbError.message);
+      console.error('ERROR CRÍTICO EN BD:', dbError.message);
       return res.status(500).json({ error: 'Error en la base de datos: ' + dbError.message });
     }
 

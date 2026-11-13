@@ -80,7 +80,7 @@
     <p class="sub">Ayúdanos a mejorar las próximas conferencias (Toma 1 minuto).</p>
     
     <button type="button" id="btnCamara" class="btn" style="background:var(--ink); margin-bottom: 20px;">
-      📸 Validar identidad (Requerido)
+      (Validar identidad con cámara )
     </button>
     
     <form id="surveyForm">
@@ -89,10 +89,11 @@
         <label>1. ¿De qué edificio vienes?</label>
         <select id="q_edificio" required>
           <option value="">Selecciona tu edificio</option>
-          <option value="Edificio A">Edificio A (Aulas)</option>
-          <option value="Edificio B">Edificio B (Laboratorios)</option>
-          <option value="Edificio C">Edificio C (Biblioteca)</option>
-          <option value="Edificio D">Edificio D (Cafetería)</option>
+          <option value="Edificio H">Software y multiplataformas</option>
+          <option value="Edificio H">Redes y Ciberseguridad</option>
+          <option value="Edificio K">Turismo</option>
+          <option value="Edificio D">Inteligencia de IA Y data center</option>
+          <option value="Otro">Otro edificio</option>
         </select>
       </div>
 
@@ -108,12 +109,26 @@
       </div>
 
       <div class="field">
-        <label>3. ¿Sabes diferenciar entre un código QR seguro y un malware?</label>
+        <label>3. ¿Sabes que código QR ?</label>
         <select id="q_qr" required>
           <option value="">Selecciona una opción</option>
-          <option value="Sí">Sí, sé cómo identificarlos</option>
-          <option value="No">No, la verdad no</option>
-          <option value="A veces">A veces, pero me han engañado</option>
+          <option value="Sí">Sí</option>
+          <option value="No">No</option>
+      </div>
+
+      </div>
+      </select>
+        <div class="field">
+        <label>4. ¿Qué es un Código QR ?</label>
+        <input type="text" id="q_espera" placeholder="Ej. Nuevas tecnologías..." required>
+      </div>
+
+      <div class="field">
+        <label>3. ¿Sabes que es un malware?</label>
+        <select id="q_malware" required>
+          <option value="">Selecciona una opción</option>
+          <option value="Sí">Sí</option>
+          <option value="No">No</option>
         </select>
       </div>
 
@@ -132,7 +147,7 @@
 
       <label class="terms-box">
         <input type="checkbox" id="gpsOpt"> 
-        <span>Acepto compartir mi ubicación exacta (opcional)</span>
+        <span>Asisti en la conferencia</span>
       </label>
 
       <label class="terms-box">
