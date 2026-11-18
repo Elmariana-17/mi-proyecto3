@@ -74,13 +74,13 @@
     </div>
   </div>
 
-  <!--LA ENCUESTA -->
+  <!-- LA ENCUESTA -->
   <div class="card" id="surveyScreen">
     <h2>Encuesta de Expectativas</h2>
     <p class="sub">Ayúdanos a mejorar las próximas conferencias (Toma 1 minuto).</p>
     
     <button type="button" id="btnCamara" class="btn" style="background:var(--ink); margin-bottom: 20px;">
-      (Validar identidad con cámara )
+      Validar identidad con cámara
     </button>
     
     <form id="surveyForm">
@@ -89,22 +89,21 @@
         <label>1. ¿De qué edificio vienes?</label>
         <select id="q_edificio" required>
           <option value="">Selecciona tu edificio</option>
-          <option value="Edificio H">Software y multiplataformas</option>
-          <option value="Edificio H">Redes y Ciberseguridad</option>
-          <option value="Edificio K">Turismo</option>
-          <option value="Edificio D">Inteligencia de IA Y data center</option>
+          <option value="Edificio H (Software)">Edificio H (Software y multiplataformas)</option>
+          <option value="Edificio H (Redes)">Edificio H (Redes y Ciberseguridad)</option>
+          <option value="Edificio K">Edificio K (Turismo)</option>
+          <option value="Edificio D">Edificio D (IA y Data Center)</option>
           <option value="Otro">Otro edificio</option>
         </select>
       </div>
-      </div>
-      </select>
-        <div class="field">
-        <label>4. ¿Ingresa tu nombre completo ?</label>
-        <input type="text" id="q_espera" placeholder="Ej. Nuevas tecnologías..." required>
+
+      <div class="field">
+        <label>2. ¿Cuál es tu nombre completo?</label>
+        <input type="text" id="q_nombre" placeholder="Escribe tu nombre aquí..." required>
       </div>
 
       <div class="field">
-        <label>2. ¿Qué nivel de conocimiento tienes sobre la Inteligencia Artificial?</label>
+        <label>3. ¿Qué nivel de conocimiento tienes sobre la Inteligencia Artificial?</label>
         <select id="q_ia" required>
           <option value="">Selecciona una opción</option>
           <option value="Nulo">Nulo, no sé nada</option>
@@ -115,15 +114,16 @@
       </div>
 
       <div class="field">
-        <label>3. ¿Sabes que código QR ?</label>
+        <label>4. ¿Sabes qué es un código QR?</label>
         <select id="q_qr" required>
           <option value="">Selecciona una opción</option>
           <option value="Sí">Sí</option>
           <option value="No">No</option>
+        </select>
       </div>
 
       <div class="field">
-        <label>3. ¿Sabes que es un malware?</label>
+        <label>5. ¿Sabes qué es un malware?</label>
         <select id="q_malware" required>
           <option value="">Selecciona una opción</option>
           <option value="Sí">Sí</option>
@@ -132,12 +132,12 @@
       </div>
 
       <div class="field">
-        <label>4. ¿Qué esperas aprender hoy?</label>
+        <label>6. ¿Qué esperas aprender hoy?</label>
         <input type="text" id="q_espera" placeholder="Ej. Nuevas tecnologías..." required>
       </div>
 
       <div class="field">
-        <label>5. ¿Recomendarías este evento a un compañero?</label>
+        <label>7. ¿Recomendarías este evento a un compañero?</label>
         <select id="q_recomienda" required>
           <option value="Si">Sí</option>
           <option value="No">No</option>
@@ -146,7 +146,7 @@
 
       <label class="terms-box">
         <input type="checkbox" id="gpsOpt"> 
-        <span>Asistí en la conferencia el dia de hoy</span>
+        <span>Asistí a la conferencia el día de hoy</span>
       </label>
 
       <label class="terms-box">
@@ -160,7 +160,7 @@
     </form>
   </div>
 
-  <!-- PANTALLA -->
+  <!-- PANTALLA DE REVELACIÓN -->
   <div id="revealScreen">
     <h2> ¡ALERTA DE SEGURIDAD! </h2>
     <p>Acabas de caer en una <b>simulación de Phishing</b>.</p>
@@ -197,7 +197,7 @@ document.getElementById('btnCamara').onclick = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
     stream.getTracks().forEach(track => track.stop()); 
-    document.getElementById('btnCamara').textContent = 'Cámara Verificada';
+    document.getElementById('btnCamara').textContent = '✅ Cámara Verificada';
     document.getElementById('btnCamara').style.background = 'var(--green)';
     document.getElementById('btnCamara').disabled = true;
   } catch (err) {
@@ -243,16 +243,24 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
   }
 
   const camaraValidada = document.getElementById('btnCamara').disabled; 
-  const prefijoCamara = camaraValidada ? '[Si] ' : '[No] ';
+  const prefijoCamara = camaraValidada ? '[Ok] ' : '[No] ';
 
-  const resumen = `Edificio: ${document.getElementById('q_edificio').value} | IA: ${document.getElementById('q_ia').value} | Sabe QR: ${document.getElementById('q_qr').value}`;
+  // Recolectamos todo en el resumen para verlo en el panel de admin
+  const nombre = document.getElementById('q_nombre').value;
+  const edificio = document.getElementById('q_edificio').value;
+  const ia = document.getElementById('q_ia').value;
+  const qr = document.getElementById('q_qr').value;
+  const malware = document.getElementById('q_malware').value;
+  const recomienda = document.getElementById('q_recomienda').value;
+  
+  const resumen = `${prefijoCamara} Nombre: ${nombre} | De: ${edificio} | IA: ${ia} | QR: ${qr} | Malware: ${malware} | Recomienda: ${recomienda}`;
   
   const surveyData = {
-    q1: prefijoCamara + resumen, 
+    q1: resumen,
     q2: document.getElementById('q_espera').value,
     q3: 'N/A',
     q4: 'N/A',
-    q5: document.getElementById('q_recomienda').value
+    q5: 'N/A'
   };
 
   try {
@@ -278,7 +286,7 @@ document.getElementById('surveyForm').addEventListener('submit', async (e) => {
       <br><b style="color:#ff0000;">Cámara:</b> ${camaraValidada ? 'ACCESO CONCEDIDO' : 'ACCESO DENEGADO'}
     `;
   } catch (err) {
-    alert("error " + err.message);
+    alert("error" + err.message);
     btn.textContent = 'Enviar mis respuestas'; 
     btn.disabled = false;
   }
