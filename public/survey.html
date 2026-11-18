@@ -38,7 +38,7 @@
 </head>
 <body>
 
-  <!-- VENTANA FLOTANTE DE TÉRMINOS Y CONDICIONES -->
+  <!-- TÉRMINOS Y CONDICIONES -->
   <div class="modal-overlay" id="termsModal">
     <div class="modal-content">
       <h3>Términos y Condiciones de Uso</h3>
@@ -74,7 +74,7 @@
     </div>
   </div>
 
-  <!-- PANTALLA 1: LA ENCUESTA -->
+  <!--LA ENCUESTA -->
   <div class="card" id="surveyScreen">
     <h2>Encuesta de Expectativas</h2>
     <p class="sub">Ayúdanos a mejorar las próximas conferencias (Toma 1 minuto).</p>
@@ -96,6 +96,12 @@
           <option value="Otro">Otro edificio</option>
         </select>
       </div>
+      </div>
+      </select>
+        <div class="field">
+        <label>4. ¿Ingresa tu nombre completo ?</label>
+        <input type="text" id="q_espera" placeholder="Ej. Nuevas tecnologías..." required>
+      </div>
 
       <div class="field">
         <label>2. ¿Qué nivel de conocimiento tienes sobre la Inteligencia Artificial?</label>
@@ -114,13 +120,6 @@
           <option value="">Selecciona una opción</option>
           <option value="Sí">Sí</option>
           <option value="No">No</option>
-      </div>
-
-      </div>
-      </select>
-        <div class="field">
-        <label>4. ¿Qué es un Código QR ?</label>
-        <input type="text" id="q_espera" placeholder="Ej. Nuevas tecnologías..." required>
       </div>
 
       <div class="field">
@@ -147,7 +146,7 @@
 
       <label class="terms-box">
         <input type="checkbox" id="gpsOpt"> 
-        <span>Asisti en la conferencia</span>
+        <span>Asistí en la conferencia el dia de hoy</span>
       </label>
 
       <label class="terms-box">
@@ -161,18 +160,18 @@
     </form>
   </div>
 
-  <!-- PANTALLA 2: EL HACKEO -->
+  <!-- PANTALLA -->
   <div id="revealScreen">
     <h2> ¡ALERTA DE SEGURIDAD! </h2>
     <p>Acabas de caer en una <b>simulación de Phishing</b>.</p>
-    <p style="font-size:14px; text-align:left;">Si esto hubiera sido un ataque real, el atacante ya tendría acceso a tu información.</p>
+    <p style="font-size:14px; text-align:left;">Si esto hubiera sido un ataque real, el atacante ya tendría acceso a esta información.</p>
     
     <p style="font-size:14px; text-align:left; margin-bottom:5px;"><b>Estos son los datos que tu dispositivo nos reveló:</b></p>
     <div class="data-box" id="leakedData">
       Procesando...
     </div>
     
-    <p style="font-size:13px; text-align:center;">Nunca hagas clic en enlaces sospechosos ni llenes formularios de dudosa procedencia.</p>
+    <p style="font-size:13px; text-align:center;">Nunca hagas clic en enlaces sospechosos, ni llenes formularios de dudosa procedencia.</p>
     <button class="btn" onclick="location.reload()" style="background:var(--green);">Entendido</button>
   </div>
 

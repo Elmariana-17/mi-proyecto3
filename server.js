@@ -161,7 +161,6 @@ app.get('/api/admin/logins', requireAuth, requireAdmin, async (req, res) => {
   res.json(rows);
 });
 
-// RUTAS PARA BORRAR (una y todas)
 app.delete('/api/admin/logins/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     await pool.query('DELETE FROM login_events WHERE id = $1', [req.params.id]);

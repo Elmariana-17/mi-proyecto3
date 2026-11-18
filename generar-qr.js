@@ -1,7 +1,6 @@
 const QRCode = require('qrcode');
-const baseUrl = process.argv[2]; // el argumento que pasas
+const baseUrl = process.argv[2]; 
 
-// Si la URL no termina en /survey.html, se lo agregamos
 const urlFinal = baseUrl.endsWith('/survey.html') 
   ? baseUrl 
   : baseUrl.replace(/\/$/, '') + '/survey.html';
